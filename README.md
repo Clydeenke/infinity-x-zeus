@@ -8,34 +8,29 @@ Android 16 / LineageOS 23.2 / Infinity X
 ## 编译
 
 ```bash
-# 1. 拿这个仓库，apply.sh 和 zeus.xml 都在里面
+# 1. 拿这个仓库，apply.sh 和 manifest/zeus.xml 都在里面
+cd ~
 git clone https://github.com/Clydeenke/infinity-x-zeus.git
 
 # 2. 建源码树
 mkdir -p ~/android && cd ~/android
 repo init -u https://github.com/ProjectInfinity-X/manifest -b 16
 
-# 3. 把 RECIPE 改成你刚才 clone 到的位置
-RECIPE=~/infinity-x-zeus
+# 3. apply.sh 在源码树里跑，它自己会认出位置
+RECIPE=~/infinity-x-zeus        # 上一条 clone 出来的目录
 
-bash $RECIPE/apply.sh
+bash $RECIPE/apply.sh           # 第一次：放 local manifest（sync 前）
 repo sync -c -j8
-bash $RECIPE/apply.sh
+bash $RECIPE/apply.sh           # 第二次：覆盖设备树文件（sync 后）
 
 # 4. 编译
 source build/envsetup.sh
-lunch infinity_zeus-userdebug
+lunch infinity_zeus-user        # 正式版；调试版用 infinity_zeus-userdebug
 mka bacon -j8
 ```
 
-`apply.sh` 跑两次：第一次放 local manifest（sync 前），第二次把设备树文件
+`apply.sh` 跑两次：第一次只放 local manifest（sync 前），第二次把设备树文件
 覆盖进去（sync 后）。可以重复跑。
-
-正式版在 `lunch` 之后加一行：
-
-```bash
-export TARGET_BUILD_VARIANT=user
-```
 
 产物在 `out/target/product/zeus/`。
 
@@ -47,9 +42,10 @@ export TARGET_BUILD_VARIANT=user
 |---|---|
 | `repo sync` 完的源码树 | 约 175G |
 | `out/` 编译产物 | 约 150G |
-| 合计 | 约 326G |
+| 合计 | 约 325G |
 
-已经删掉 emulator、qemu-kernel、cts 省掉约 53G，但树本身还是这么大。
+`manifest/zeus.xml` 里用 `<remove-project>` 去掉了 emulator、qemu-kernel、cts，
+`repo sync` 时自动不拉，省约 53G。所以**不需要手动删任何东西**，照上面跑就行。
 `out/` 可以随时删，删了再编就是慢一点。
 
 ## apply.sh 覆盖了什么
@@ -82,8 +78,9 @@ git -C vendor/infinity status --short             # 应只有 M config/version.m
 
 ## 为什么 local_manifest 钉 commit 不跟分支
 
-那 9 个项目在 `.repo/local_manifests/zeus.xml` 里都钉在具体 commit 上，不写
-分支名。
+那 9 个项目在本仓库的 `manifest/zeus.xml` 里都钉在具体 commit 上，不写分支名。
+`apply.sh` 会把它复制到源码树的 `.repo/local_manifests/zeus.xml`，那是 repo 读的
+位置。
 
 原因：`sm8450-common` 的 `lineage-23.2` 在 2026-09 之后多了 34 个提交，其中 3 个
 删掉了 `overlay/DialerResXiaomi`、`overlay/WifiResTarget`、
@@ -93,7 +90,8 @@ git -C vendor/infinity status --short             # 应只有 M config/version.m
 跟着分支走会拿到新版目录状态，再用旧版 `common.mk` 覆盖回去，就变成引用不存在的
 目录，构建直接失败。钉 commit 才能保证 overlays 盖得上。
 
-commit 哈希是 GitHub 上永久存在的地址，所以钉死不会"过期"。
+commit 哈希基本不会"过期"——GitHub 上的对象不会自动消失。唯一的例外是上游
+删库或用 force push 改写历史，那就拉不到了，得换成新的 commit。
 
 两个 XML 写法上的坑：
 
@@ -146,7 +144,8 @@ git -C device/xiaomi/sm8450-common diff \
 # 取新 commit 哈希
 git -C device/xiaomi/sm8450-common rev-parse refs/remotes/upstream-check/lineage-23.2
 
-# 把 zeus.xml 里那个项目的 revision 换成它
+# 把本仓库 manifest/zeus.xml 里那个项目的 revision 换成它，
+# 然后 bash $RECIPE/apply.sh 把它带进树里
 ```
 
 ### 4. 同步、覆盖、编译
@@ -155,11 +154,11 @@ git -C device/xiaomi/sm8450-common rev-parse refs/remotes/upstream-check/lineage
 repo sync -c -j8 device/xiaomi/sm8450-common
 bash $RECIPE/apply.sh
 source build/envsetup.sh
-lunch infinity_zeus-userdebug
+lunch infinity_zeus-user
 mka bacon -j8
 ```
 
-编出来确认功能正常，再 commit 改过的 `zeus.xml` 和 `overlays/`。
+编出来确认功能正常，再 commit 改过的 `manifest/zeus.xml` 和 `overlays/`。
 
 ### 升 Android 大版本
 
@@ -173,17 +172,21 @@ mka bacon -j8
 
 已核对（实测）：
 
-- local manifest 里 8 个项目按 commit 拉到，SHA 全部命中（`kernel/xiaomi/sm8450`
-  未实测拉取，commit 取自产出本包的那棵树）
-- `apply.sh` 覆盖后的文件与产出本包那棵树的对应文件**逐字节一致**
+- 全量 `mka bacon` 跑通，`user` 变体，`release-keys` 签名，退出码 0
+- 编出来的 zip 已刷进 Xiaomi 12 Pro，开机进系统正常
+- 刷后实测：相机、指纹、NFC、充电、信号都正常
+- local manifest 里 9 个项目按 commit 拉到，8 个 SHA 命中（`kernel/xiaomi/sm8450`
+  未实测拉取，commit 取自作者编译成功的那棵源码树）
+- `apply.sh` 覆盖后的文件与作者编译成功那棵源码树的对应文件**逐字节一致**
 - XML 合法，manifest 合并无冲突（`vendor/infinity` 的 remove + 重加写法已实测）
 - `apply.sh` 可重复执行，仓库没 sync 完时会明确报出缺哪个
 - `check-updates.sh` 在真实源码树上跑过
 
-未做：未从零完成全量 `mka bacon`（受磁盘和时长限制没跑得下来）。
+没验证的：上面列的几项之外的功能没测。刷之前按官方 LineageOS 教程做备份，
+出问题自己负责。
 
-编译出错请开 issue，附上日志里 `FAILED:` 那几行和 `repo sync` 后的
-`.repo/manifest.xml` 里 zeus 那几行。
+编译出错请开 issue，附上日志里 `FAILED:` 那几行，和
+`cat .repo/local_manifests/zeus.xml` 的内容。
 
 ## Credits
 

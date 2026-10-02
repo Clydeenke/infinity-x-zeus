@@ -18,9 +18,17 @@ TREE="${TREE:-$PWD}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 MISSING=0
 
-[ -d "$TREE/.repo" ] || {
-    echo "✗ $TREE 下没有 .repo" >&2
-    echo "  先在那个目录跑：repo init -u https://github.com/ProjectInfinity-X/manifest -b 16" >&2
+# 用 build/envsetup.sh 判断是不是源码树。不要用 .repo 判断 —— 本仓库
+# 自己就带 .repo/ 目录（虽然已改名成 manifest/，但老版本有），拿它当
+# 判据会误放行，然后在同一文件上 cp 自己报错。
+[ -f "$TREE/build/envsetup.sh" ] || {
+    if [ -d "$TREE/.repo" ]; then
+        echo "✗ $TREE 下没有 build/envsetup.sh" >&2
+        echo "  repo init 还没跑，或者你在错误的目录里。" >&2
+    else
+        echo "✗ $TREE 不是源码树（找不到 build/envsetup.sh）" >&2
+        echo "  在源码树根目录跑，或 TREE=<路径> bash apply.sh" >&2
+    fi
     exit 1
 }
 
@@ -47,7 +55,7 @@ put() {
 
 echo "→ local manifest"
 mkdir -p "$TREE/.repo/local_manifests"
-cp "$HERE/.repo/local_manifests/zeus.xml" "$TREE/.repo/local_manifests/"
+cp "$HERE/manifest/zeus.xml" "$TREE/.repo/local_manifests/zeus.xml"
 echo "  ✓ .repo/local_manifests/zeus.xml"
 
 if [ ! -d "$TREE/device/xiaomi/zeus" ]; then

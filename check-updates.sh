@@ -114,19 +114,21 @@ cat <<'EOF'
      整文件盖回去就是构建失败，这种情况下要把我们的改动挪到新版
      common.mk 的对应位置，再更新 overlays/ 里的文件。
 
-  2. 把 .repo/local_manifests/zeus.xml 里那个项目的 revision 换成
+  2. 把本仓库 manifest/zeus.xml 里那个项目的 revision 换成
      refs/remotes/upstream-check/<分支> 的 commit 哈希：
 
        git -C <树>/<项目> rev-parse refs/remotes/upstream-check/<分支>
+
+     改完 bash apply.sh 把它带进树里。
 
   3. 同步 + 重新覆盖 + 编译：
 
        repo sync -c -j8 <项目路径>
        bash apply.sh
-       source build/envsetup.sh && lunch infinity_zeus-userdebug
+       source build/envsetup.sh && lunch infinity_zeus-user
        mka bacon -j8
 
-  4. 编出来确认功能正常之后，再 commit 改 zeus.xml 和 overlays/。
+  4. 编出来确认功能正常之后，再 commit 改 manifest/zeus.xml 和 overlays/。
 
 升 Android 大版本（比如 17）时，local_manifest 里那 9 个 pin 全都要换，
 而且 LineageOS 那边要先有对应分支。没有分支就是无树可编，只能等。
