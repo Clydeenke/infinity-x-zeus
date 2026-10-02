@@ -2,17 +2,19 @@
 <manifest>
   <!-- Xiaomi 12 Pro (zeus) for Infinity X 3.12 / Android 16
 
-       这 8 个项目 LineageOS 和 Infinity X 都没有收录，必须自己加。
+       前 8 个项目 LineageOS 和 Infinity X 都没有收录，必须自己加。
+       第 9 个 vendor/infinity 是 IX 自家的项目，这里额外钉死，见下。
 
        revision 全部钉在具体 commit 上，不是 lineage-23.2 分支名。原因：
-       下面 3 个 common.mk / AndroidProducts.mk 是整文件覆盖，不是 patch。
-       sm8450-common 的 lineage-23.2 在 2026-09 之后新增了 34 个提交，其中
-       3 个删掉了 overlay/DialerResXiaomi、overlay/WifiResTarget、
-       overlay/WifiResTarget_cape 三个目录，同时从 common.mk 里删掉对应的
-       PRODUCT_PACKAGES 行。跟着分支走会拿到新版的目录状态，再用旧版
-       common.mk 覆盖回去，就变成引用不存在的目录，构建直接失败。
+       AndroidProducts.mk、common.mk、Android.bp、config/version.mk 这 4 个
+       是整文件覆盖，不是 patch。sm8450-common 的 lineage-23.2 在 2026-09
+       之后新增了 34 个提交，其中 3 个删掉了 overlay/DialerResXiaomi、
+       overlay/WifiResTarget、overlay/WifiResTarget_cape 三个目录，同时从
+       common.mk 里删掉对应的 PRODUCT_PACKAGES 行。跟着分支走会拿到新版的
+       目录状态，再用旧版 common.mk 覆盖回去，就变成引用不存在的目录，
+       构建直接失败。
 
-       要更新：git -C <树> fetch && 看 diff，确认 overlay 还能盖得上，
+       要更新：跑 check-updates.sh，看 diff，确认 overlay 还能盖得上，
        再把下面的 SHA 换成新的。 -->
 
   <project path="device/xiaomi/zeus"

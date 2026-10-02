@@ -2,15 +2,27 @@
 
 Android 16 / LineageOS 23.2 / Infinity X
 
+非官方构建。与小米、LineageOS、Project Infinity X 官方均无关联，不代表
+任何一方的立场。
+
 ## 编译
 
 ```bash
+# 1. 拿这个仓库，apply.sh 和 zeus.xml 都在里面
+git clone https://github.com/Clydeenke/infinity-x-zeus.git
+
+# 2. 建源码树
+mkdir -p ~/android && cd ~/android
 repo init -u https://github.com/ProjectInfinity-X/manifest -b 16
 
-bash apply.sh
-repo sync -c -j8
-bash apply.sh
+# 3. 把 RECIPE 改成你刚才 clone 到的位置
+RECIPE=~/infinity-x-zeus
 
+bash $RECIPE/apply.sh
+repo sync -c -j8
+bash $RECIPE/apply.sh
+
+# 4. 编译
 source build/envsetup.sh
 lunch infinity_zeus-userdebug
 mka bacon -j8
@@ -27,12 +39,22 @@ export TARGET_BUILD_VARIANT=user
 
 产物在 `out/target/product/zeus/`。
 
-环境：`-j8`，内存 30G 以上，源码树所在分区留 40G 以上。`out/` 可以随时删。
+环境：`-j8`，内存 30G 以上。
+
+磁盘要留 **350G**。实测占用：
+
+| | |
+|---|---|
+| `repo sync` 完的源码树 | 约 175G |
+| `out/` 编译产物 | 约 150G |
+| 合计 | 约 326G |
+
+已经删掉 emulator、qemu-kernel、cts 省掉约 53G，但树本身还是这么大。
+`out/` 可以随时删，删了再编就是慢一点。
 
 ## apply.sh 覆盖了什么
 
-这 5 个文件是让 IX 能编 zeus
-必需的改动：
+这 6 个文件是让 IX 能编 zeus 必需的改动：
 
 | 文件 | 改什么 |
 |---|---|
@@ -43,8 +65,9 @@ export TARGET_BUILD_VARIANT=user
 | `overlays/hardware/xiaomi/Android.bp` | 1 行。`soong_namespace` 加 `imports: ["device/xiaomi/zeus"]` |
 | `overlays/vendor/infinity/config/version.mk` | 1 行。`INFINITY_MAINTAINER` |
 
-前 3 个里的新增文件不存在冲突问题。后 3 个是**整文件覆盖既有文件**，上游改了
-同一个文件时会被盖回去，见下面「更新」。
+两个新增文件（`infinity_zeus.mk`、`stubs_defaults/`）不存在冲突问题：上游本来
+就没有这两个东西。剩下 4 个是**整文件覆盖既有文件**，上游改了同一个文件时会被
+我们盖回去，所以更新时必须看 diff，见下面「更新」。
 
 vendor blobs 一个字节没改。
 
@@ -85,8 +108,10 @@ commit 哈希是 GitHub 上永久存在的地址，所以钉死不会"过期"。
 
 ### 1. 看有没有新提交
 
+在源码树里跑，`RECIPE` 还是上面那个路径：
+
 ```bash
-bash check-updates.sh
+bash $RECIPE/check-updates.sh
 ```
 
 只 fetch，不动工作区。输出形如：
@@ -128,7 +153,7 @@ git -C device/xiaomi/sm8450-common rev-parse refs/remotes/upstream-check/lineage
 
 ```bash
 repo sync -c -j8 device/xiaomi/sm8450-common
-bash apply.sh
+bash $RECIPE/apply.sh
 source build/envsetup.sh
 lunch infinity_zeus-userdebug
 mka bacon -j8
