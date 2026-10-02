@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Xiaomi 12 Pro (zeus) for Infinity X 3.12 / Android 16
+
+       这 8 个项目 LineageOS 和 Infinity X 都没有收录，必须自己加。
+
+       revision 全部钉在具体 commit 上，不是 lineage-23.2 分支名。原因：
+       下面 3 个 common.mk / AndroidProducts.mk 是整文件覆盖，不是 patch。
+       sm8450-common 的 lineage-23.2 在 2026-09 之后新增了 34 个提交，其中
+       3 个删掉了 overlay/DialerResXiaomi、overlay/WifiResTarget、
+       overlay/WifiResTarget_cape 三个目录，同时从 common.mk 里删掉对应的
+       PRODUCT_PACKAGES 行。跟着分支走会拿到新版的目录状态，再用旧版
+       common.mk 覆盖回去，就变成引用不存在的目录，构建直接失败。
+
+       要更新：git -C <树> fetch && 看 diff，确认 overlay 还能盖得上，
+       再把下面的 SHA 换成新的。 -->
+
+  <project path="device/xiaomi/zeus"
+           name="LineageOS/android_device_xiaomi_zeus"
+           remote="github"
+           revision="d9daddec9299814d0d79870387ae5bccc5d4d055" />
+
+  <project path="device/xiaomi/sm8450-common"
+           name="LineageOS/android_device_xiaomi_sm8450-common"
+           remote="github"
+           revision="ffe9fc07b5ec4c5d3276897a49a4e9fdde9a4a62" />
+
+  <project path="hardware/xiaomi"
+           name="LineageOS/android_hardware_xiaomi"
+           remote="github"
+           revision="e0b0fa0cf9b5a5c5f174a1c3a6e8d63cc361c1d1" />
+
+  <project path="kernel/xiaomi/sm8450"
+           name="LineageOS/android_kernel_xiaomi_sm8450"
+           remote="github"
+           revision="ef362912d37b761041709638c1e571d6394e9558" />
+
+  <project path="kernel/xiaomi/sm8450-devicetrees"
+           name="LineageOS/android_kernel_xiaomi_sm8450-devicetrees"
+           remote="github"
+           revision="2e649a7f3e762903eedad43d8256b91e28b512d8" />
+
+  <project path="kernel/xiaomi/sm8450-modules"
+           name="LineageOS/android_kernel_xiaomi_sm8450-modules"
+           remote="github"
+           revision="ae45c06de3317b5ffcdf47bb9ccf35f7126d5933" />
+
+  <project path="vendor/xiaomi/zeus"
+           name="TheMuppets/proprietary_vendor_xiaomi_zeus"
+           remote="github"
+           revision="b5fb69dc01cd8e1f7ebf9069e776c017d67a88a9" />
+
+  <project path="vendor/xiaomi/sm8450-common"
+           name="TheMuppets/proprietary_vendor_xiaomi_sm8450-common"
+           remote="github"
+           revision="a65718c8f25a2b676ce79ab5428fede3bdf11c7b" />
+
+  <!-- vendor/infinity 本身是 IX manifest 里的项目（默认跟着 IX 分支走），
+       这里钉死，否则它一更新，overlays 里的 version.mk 就把它盖掉。
+
+       必须先 remove-project 再加回来。只改 name/remote 会被 repo 判成
+       两个项目占同一路径，直接报 duplicate path，整个 sync 起不来。 -->
+  <remove-project name="vendor_infinity" />
+  <project path="vendor/infinity"
+           name="vendor_infinity"
+           remote="infinity"
+           revision="0c86c0d00764c2b0b31e6d8e2868f853e354abf1" />
+
+  <!-- CAF 驱动和 sepolicy_vndr 已由 snippets/lineage.xml 定义
+       （lineage-23.2-caf-sm8450 分支），此处不重复声明 -->
+
+  <!-- 真机编译用不到的模拟器和 CTS，省大约 53G。
+       删掉 cts 之后全树继承 cts_defaults 之类的 defaults 会解析失败，
+       device/xiaomi/zeus/stubs_defaults/ 补的就是这些。 -->
+  <remove-project name="platform/prebuilts/android-emulator" />
+  <remove-project name="platform/prebuilts/qemu-kernel" />
+  <remove-project name="platform/cts" />
+</manifest>

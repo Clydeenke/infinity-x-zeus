@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Stub manifest shared by CTS test stub modules defined in Android.bp.
+     These modules are only referenced by test_package aggregations and test
+     data lists; they are never installed into the ROM. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.zeus.cts.stub">
+    <application android:label="CTS Stub" />
+</manifest>

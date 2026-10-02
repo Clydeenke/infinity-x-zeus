@@ -1,0 +1,406 @@
+// Stub defaults for upstream test modules (CTS/MTS suites are parse-only
+// in this build; `bacon` never compiles them. Definitions live in the
+// full cts/test repos which are not part of this device's checkout.)
+java_defaults {
+    name: "cts_defaults",
+}
+
+java_defaults {
+    name: "cts_error_prone_rules",
+}
+
+java_defaults {
+    name: "mts-target-sdk-version-current",
+}
+
+java_defaults {
+    name: "cts_support_defaults",
+}
+
+cc_defaults {
+    name: "cts_bionic_defaults",
+    // Only the primary (64-bit) variant: the 32-bit variant installs its
+    // license metadata to the same cts_root testcases path and kati errors
+    // out with "cannot copy target from multiple modules".
+    compile_multilib: "64",
+}
+
+java_library {
+    name: "vogarexpectlib",
+    host_supported: true,
+}
+
+// 主机侧测试工具 stub —— 仅被 java_test_host 引用，bacon 不编译
+java_library_host {
+    name: "cts-install-lib-host",
+}
+
+java_library_host {
+    name: "cts-tradefed",
+}
+
+java_library_host {
+    name: "cts-shim-host-lib",
+}
+
+java_library_host {
+    name: "cts-statsd-atom-host-test-utils",
+}
+
+java_library_host {
+    name: "cts-tradefed-harness",
+}
+
+java_library_host {
+    name: "cts-host-utils",
+}
+
+java_library_host {
+    name: "compatibility-host-util-axt",
+}
+
+java_library_host {
+    name: "car-cts-host-util",
+}
+
+java_library_host {
+    name: "suite-loading-tests",
+}
+
+// 双变体测试工具 stub —— 被 java_library 引用的模块，需要 host + device 变体
+java_library {
+    name: "compatibility-device-util-axt",
+}
+
+java_library {
+    name: "compatibility-device-util-axt-minus-dexmaker",
+}
+
+java_library {
+    name: "cts-core-test-runner-axt",
+}
+
+java_library {
+    name: "cts-keystore-test-util",
+}
+
+java_library {
+    name: "CtsVirtualDeviceCommonLib",
+}
+
+java_library {
+    name: "Nene",
+}
+
+java_library {
+    name: "Queryable",
+}
+
+java_library {
+    name: "Harrier",
+}
+
+// 第四批：更多测试工具 —— java_library (双变体)
+java_library {
+    name: "ctstestrunner-axt",
+}
+
+java_library {
+    name: "cts-input-lib",
+}
+
+java_library {
+    name: "cts-install-lib",
+}
+
+java_library {
+    name: "cts-install-lib-java",
+}
+
+java_library {
+    name: "cts-rollback-lib",
+}
+
+java_library {
+    name: "bedstead-multiuser",
+}
+
+// 第五批
+java_library {
+    name: "bedstead-enterprise",
+}
+
+java_library {
+    name: "bedstead-flags",
+}
+
+java_library {
+    name: "cts-wm-util",
+}
+
+java_library {
+    name: "ctstestserver",
+}
+
+// CTS test library stubs (referenced by frameworks/base tests)
+java_library {
+    name: "cts-companion-common",
+}
+
+java_library {
+    name: "cts-companion-uicommon",
+}
+
+java_library {
+    name: "cts-mediaprojection-common",
+}
+
+java_library {
+    name: "compatibility-device-util-axt-ravenwood",
+}
+
+java_library {
+    name: "bedstead-root-annotations",
+}
+
+java_library {
+    name: "CtsAccessibilityCommon",
+}
+
+java_library {
+    name: "CtsPhotoPickerTestLib",
+}
+
+java_library {
+    name: "compatibility-device-preconditions",
+}
+
+java_library {
+    name: "TestApp",
+}
+
+// 更多测试工具
+java_library {
+    name: "device-time-shell-utils",
+}
+
+java_library {
+    name: "print-test-util-lib",
+}
+
+java_library {
+    name: "CtsAppSearchTestUtils",
+}
+
+java_library {
+    name: "ActivityContext",
+}
+
+java_library {
+    name: "Interactive",
+}
+
+java_library {
+    name: "android.telephony.mockmodem",
+}
+
+java_library {
+    name: "telephony-cts-utils",
+}
+
+java_library {
+    name: "cts_app_test_shared_lib",
+}
+
+cc_library_static {
+    name: "libnativetesthelper_jni",
+    sdk_version: "current",
+}
+
+java_library {
+    name: "nativetesthelper",
+}
+
+rust_library {
+    name: "libcts_flags_tests_rust",
+    crate_name: "cts_flags_tests",
+    srcs: ["src/lib.rs"],
+    host_supported: true,
+}
+
+android_test {
+    name: "CtsCameraTestCases",
+    test_suites: ["cts"],
+    sdk_version: "current",
+}
+
+java_library {
+    name: "CtsNetTestsNonUpdatableLib",
+}
+
+// JNI library stub for CTS net tests
+cc_library_shared {
+    name: "libcts_jni",
+    vendor_available: true,
+    sdk_version: "current",
+    srcs: ["src/dummy.cpp"],
+}
+
+// CTS net test stubs — compile_dex: false ensures bacon skips them
+java_library {
+    name: "CtsSurfaceValidatorLib",
+}
+
+// microdroid trusty stubs
+// Missing CTS test runner stubs
+java_library {
+    name: "cts-dalvik-device-test-runner",
+    host_supported: true,
+}
+
+// Missing APEX test stubs - disabled, these are test-only apexes
+
+// Missing CTS test runner stubs
+java_library_host {
+    name: "cts-dalvik-host-test-runner",
+}
+
+// Missing CTS helper modules
+android_app {
+    name: "com.android.cts.helpers.aosp",
+    platform_apis: true,
+}
+
+android_app {
+    name: "TestAppAv1",
+    platform_apis: true,
+    certificate: "platform",
+    apex_available: ["//apex_available:anyapex"],
+}
+
+android_app {
+    name: "TestAppAv2",
+    platform_apis: true,
+    certificate: "platform",
+    apex_available: ["//apex_available:anyapex"],
+}
+
+android_app {
+    name: "TestAppACrashingV2",
+    platform_apis: true,
+    certificate: "platform",
+    apex_available: ["//apex_available:anyapex"],
+}
+
+android_app {
+    name: "CtsDefaultNotesApp",
+    platform_apis: true,
+    certificate: "platform",
+}
+
+java_library_host {
+    name: "CtsHostsideTestsAppSecurityUtil",
+}
+
+android_app {
+    name: "CtsMediaProjectionTestCasesHelperApp",
+    certificate: "platform",
+    platform_apis: true,
+}
+
+java_library {
+    name: "CtsMediaProviderTestUtils",
+}
+
+// Missing test app stubs for frameworks/base tests
+android_app {
+    name: "HelloWorldUsingSdk1And2",
+    platform_apis: true,
+    certificate: "platform",
+}
+
+android_app {
+    name: "CtsStaticSharedLibConsumerApp1",
+    platform_apis: true,
+    certificate: "platform",
+}
+
+android_app {
+    name: "CtsStaticSharedLibConsumerApp3",
+    platform_apis: true,
+    certificate: "platform",
+}
+
+android_app {
+    name: "CtsStaticSharedLibProviderApp1",
+    platform_apis: true,
+    certificate: "platform",
+}
+
+android_app {
+    name: "HelloWorldSdk1",
+    platform_apis: true,
+    certificate: "platform",
+}
+
+android_app {
+    name: "HelloWorldUsingSdk1AndSdk1",
+    platform_apis: true,
+    certificate: "platform",
+}
+
+android_app {
+    name: "HelloWorldUsingSdkMalformedNegativeVersion",
+    platform_apis: true,
+    certificate: "platform",
+}
+
+android_app {
+    name: "CtsAppTestStubs",
+    platform_apis: true,
+    certificate: "platform",
+}
+
+
+// Stubs for modules required by the `checkinput` phony target (cts/ repo not
+// synced in this tree). Only need to exist as installable modules so that
+// kati's missing-required-modules check passes; never built for the ROM.
+android_app {
+    name: "Bug-115739809",
+    platform_apis: true,
+}
+
+android_app {
+    name: "CtsHardwareTestCases",
+    platform_apis: true,
+}
+
+android_app {
+    name: "CtsInputTestCases",
+    platform_apis: true,
+}
+
+android_app {
+    name: "CtsSecurityBulletinHostTestCases",
+    platform_apis: true,
+}
+
+android_app {
+    name: "CtsSecurityTestCases",
+    platform_apis: true,
+}
+
+android_app {
+    name: "CtsViewTestCases",
+    platform_apis: true,
+}
+
+android_app {
+    name: "CtsWidgetTestCases",
+    platform_apis: true,
+}
+
+android_app {
+    name: "CtsWindowManagerDeviceWindow",
+    platform_apis: true,
+}
